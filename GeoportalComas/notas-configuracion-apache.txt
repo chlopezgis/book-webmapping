@@ -1,0 +1,29 @@
+1. Agregar a las variables de entorno en la variable JRE_HOME la ruta de la instalacion del JRE (probablemente debas instalar Java del siguiente link: https://www.java.com/es/download/. La ruta en el directorio, probablemente, sea similar a la siguiente: C:\Program Files (x86)\Java\jre1.8.0_441
+
+2. Par realizar peticiones a un servicio de geoserver mediante "fetch" es necesario configurar el archivo "web.xml" para que permita solicitudes desde diferentes orígenes
+
+* Ubicacion (similar a): C:\Program Files\Apache Software Foundation\Tomcat 9.0\conf\web.xml
+* Agrega lo siguiente antes de </web-app>:
+	<filter>
+		<filter-name>cross-origin</filter-name>
+		<filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
+		<init-param>
+			<param-name>allowedOrigins</param-name>
+			<param-value>*</param-value>
+		</init-param>
+		<init-param>
+			<param-name>allowedMethods</param-name>
+			<param-value>GET,POST,OPTIONS,PUT,DELETE,HEAD</param-value>
+		</init-param>
+		<init-param>
+			<param-name>allowedHeaders</param-name>
+			<param-value>*</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>cross-origin</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+3. Reinicia GeoServer: Después de modificar web.xml, reinicia GeoServer para aplicar los cambios.

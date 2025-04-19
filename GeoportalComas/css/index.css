@@ -1,0 +1,88 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* 📌 Header */
+#header {
+    height: 50px;
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+    font-size: 18px;
+}
+
+/* Estilos para el mapa y el sidebar */
+#map {
+    position: absolute;
+    top: 50px; /* Esto coloca el mapa debajo del header */
+    left: 50px; /* El mapa empieza después del sidebar */
+    height: calc(100vh - 50px); /* El mapa ocupa toda la altura restante, excluyendo el header */
+    width: calc(100% - 50px); /* El mapa ocupa el resto del ancho disponible después del sidebar */
+}
+
+#sidebar {
+    position: absolute;
+    top: 50px; /* Esto coloca el sidebar debajo del header */
+    left: 0;
+    height: calc(100% - 50px); /* Resta la altura del header al total de la altura */
+    width: 50px;
+    background-color: rgba(64, 101, 138, 0.849);
+    padding: 10px;
+    transition: width 0.3s ease-in-out;
+    z-index: 9999;
+}
+
+#layersPanel {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.layer-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.layer-item label {
+    margin-left: 10px;
+}
+
+#layerButton {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#layerButton:hover {
+    background-color: #45a049;
+}
+
+/* Estilos para el toggleSwitch (checkbox) */
+.layer-toggle {
+    margin-right: 10px;       /* Separación del checkbox respecto al texto */
+    transform: scale(1.2);  /* Aumentar el tamaño del checkbox */
+}
+
+/* Estilo al pasar el mouse sobre el label */
+.layer-label:hover {
+    color: #4CAF50;         /* Cambia el color cuando el mouse pasa por encima */
+    cursor: pointer;       /* Cambia el cursor a puntero */
+}
+
+/* Estilo al pasar el mouse sobre el toggleSwitch */
+.layer-toggle:hover {
+    cursor: pointer;       /* Cambia el cursor a puntero cuando se pasa por encima */
+}
