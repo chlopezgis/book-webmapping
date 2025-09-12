@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perú Demo</title>
+</head>
+<body>
+  <div id="map" style="height: 100vh;"></div>
+  <script>
+    var map = L.map('map').setView([-12.085324487374722, -77.0369520134618], 15);
+
+    // Capa base
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Función para generar popups con todos los atributos
+    function popupContent(feature) {
+      let content = "<b>Atributos:</b><br>";
+      for (let key in feature.properties) {
+        content += `<b>${key}</b>: ${feature.properties[key]}<br>`;
+      }
+      return content;
+    }
+
+    // Variables para las capas
+    var capa0, capa1, capa2, capa3;
+
+    // Crear control de capas vacío
+    var overlays = {};
+    var control = L.control.layers({ "OpenStreetMap": osm }, overlays).addTo(map);
+
+    // Barrios
+    fetch("./json/barrios.geojson")
+      .then(res => res.json())
+      .then(data => {
+        capa0 = L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(popupContent(feature));
+          },
+          style: { color: "red" }
+        }).addTo(map);
+        control.addOverlay(capa0, "Barrios");
+      });
+
+    // Manzanas
+    fetch("./json/manzanas.geojson")
+      .then(res => res.json())
+      .then(data => {
+        capa1 = L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(popupContent(feature));
+          },
+          style: { color: "grey" }
+        }).addTo(map);
+        control.addOverlay(capa1, "Manzanas");
+      });
+
+    // Ejes viales
+    fetch("./json/ejes_viales.geojson")
+      .then(res => res.json())
+      .then(data => {
+        capa2 = L.geoJSON(data, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(popupContent(feature));
+          },
+          style: { color: "orange" }
+        }).addTo(map);
+        control.addOverlay(capa2, "Ejes viales");
+      });
+
+    // Direcciones (puntos)
+    fetch("./json/direcciones.geojson")
+      .then(res => res.json())
+      .then(data => {
+        capa3 = L.geoJSON(data, {
+          pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 3,          // tamaño del punto
+              weight: 0.5,        // grosor del borde
+              color: "white",     // borde
+              fillColor: "black", // relleno
+              fillOpacity: 0.8
+            });
+          },
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(popupContent(feature));
+          }
+        }).addTo(map);
+        control.addOverlay(capa3, "Direcciones");
+      });
+
+  </script>
+</body>
+</html>

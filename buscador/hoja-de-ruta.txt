@@ -1,0 +1,114 @@
+Fase 0 – Completada
+✅ Importación de archivos cartográficos a PostGIS
+
+✔️ Datos de direcciones, vías, manzanas, distritos, etc. correctamente cargados.
+
+🗺️ Fase 1 – Modelado y consultas geoespaciales
+Objetivo: Validar y estructurar los datos para las búsquedas.
+
+✅ Tareas:
+ Revisar que cada tabla tenga:
+
+Geometría correcta (POINT, LINESTRING, etc.).
+
+Índice espacial en columna geom.
+
+Claves útiles: nombre_via, numero, cod_ubigeo, etc.
+
+ Crear vistas SQL o consultas parametrizables para:
+
+Buscar por nombre de vía y número.
+
+Buscar por cercanía (ST_DWithin).
+
+Buscar por cod_ubigeo.
+
+ Testear resultados con SQL directo para verificar precisión.
+
+💡 Resultado esperado:
+Consultas geográficas limpias y listas para usarse desde el backend.
+
+🔧 Fase 2 – Backend (Django + Django REST + GeoDjango)
+Objetivo: Servir los datos mediante una API REST para el frontend.
+
+✅ Tareas:
+ Crear modelo Direccion vinculado a la tabla de PostGIS (si es lectura directa) o usar vistas materializadas si es complejo.
+
+ Crear serializador DireccionSerializer con geometry como GeoJSON.
+
+ Crear vista con filtro por q (texto libre) y por cod_ubigeo.
+
+ Habilitar consulta espacial si se quiere usar cercanía (?lat=...&lon=...).
+
+ Probar la API en /api/direcciones/.
+
+⚙️ Herramientas:
+Django REST Framework
+
+rest_framework_gis
+
+GeoDjango (configurado con PostGIS)
+
+💡 Resultado esperado:
+Endpoint funcional que retorna GeoJSON según parámetros de búsqueda.
+
+🗺️ Fase 3 – Frontend (Leaflet + JS)
+Objetivo: Crear interfaz de usuario para buscar y visualizar direcciones.
+
+✅ Tareas:
+ Crear un mapa base con Leaflet.
+
+ Crear un formulario o caja de búsqueda.
+
+ Consumir la API /api/direcciones/ desde JS.
+
+ Mostrar sugerencias (si hay autocompletado).
+
+ Centrar el mapa y colocar marcador en la dirección encontrada.
+
+ Mostrar detalles en un popup o panel lateral.
+
+Plugins útiles:
+leaflet-search
+
+axios (para llamadas a la API)
+
+Leaflet.markercluster (si quieres agrupar resultados)
+
+💡 Resultado esperado:
+Mapa funcional donde el usuario puede buscar una dirección y verla ubicada.
+
+🌐 Fase 4 – Publicación en la nube (GCP)
+Objetivo: Desplegar el sistema completo.
+
+✅ Tareas:
+ Crear máquina virtual (o usar Cloud Run para Django).
+
+ Desplegar GeoServer (si mostrarás capas WMS).
+
+ Configurar dominio, HTTPS y seguridad básica.
+
+ Crear base de datos Cloud SQL (si aún no está).
+
+ Automatizar el despliegue con Docker y GitHub Actions si quieres ir más pro.
+
+✨ Fase 5 – Funcionalidades adicionales (según tus objetivos)
+Opcionales recomendados:
+ Autocompletado con pg_trgm.
+
+ Búsqueda por clic inverso (geocodificación inversa).
+
+ Registro de uso (logs, estadísticas).
+
+ Filtro por capas administrativas (región, distrito).
+
+ Mostrar zona de cobertura, rutas, etc.
+
+📋 Resumen de ruta sugerida:
+Fase	Nombre	Objetivo principal
+0	Datos en PostGIS	✔️ Completo
+1	Consultas y vistas SQL	Preparar la lógica de búsqueda
+2	Backend Django + API REST	Servir resultados vía endpoints
+3	Frontend Leaflet	Crear mapa interactivo con buscador
+4	Despliegue en GCP	Publicar el geoportal
+5	Funcionalidades extra	Mejorar UX y extender capacidades
