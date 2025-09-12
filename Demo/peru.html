@@ -34,7 +34,7 @@
     var control = L.control.layers({ "OpenStreetMap": osm }, overlays).addTo(map);
 
     // Barrios
-    fetch("./json/barrios.geojson")
+    fetch("https://github.com/chlopezgis/book-webmapping/blob/9985074008a4c008571c637d5b771b6347b5f748/Demo/json/barrios.geojson")
       .then(res => res.json())
       .then(data => {
         capa0 = L.geoJSON(data, {
@@ -47,7 +47,7 @@
       });
 
     // Manzanas
-    fetch("./json/manzanas.geojson")
+    fetch("https://github.com/chlopezgis/book-webmapping/blob/9985074008a4c008571c637d5b771b6347b5f748/Demo/json/manzanas.geojson")
       .then(res => res.json())
       .then(data => {
         capa1 = L.geoJSON(data, {
@@ -60,7 +60,7 @@
       });
 
     // Ejes viales
-    fetch("./json/ejes_viales.geojson")
+    fetch("https://github.com/chlopezgis/book-webmapping/blob/9985074008a4c008571c637d5b771b6347b5f748/Demo/json/ejes_viales.geojson")
       .then(res => res.json())
       .then(data => {
         capa2 = L.geoJSON(data, {
@@ -73,7 +73,7 @@
       });
 
     // Direcciones (puntos)
-    fetch("./json/direcciones.geojson")
+    fetch("https://github.com/chlopezgis/book-webmapping/blob/9985074008a4c008571c637d5b771b6347b5f748/Demo/json/direcciones.geojson")
       .then(res => res.json())
       .then(data => {
         capa3 = L.geoJSON(data, {
