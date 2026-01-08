@@ -1,0 +1,26 @@
+URL Project:
+https://lhlpjcrndlnjtfhjdubq.supabase.co
+
+API Key:
+sb_publishable_7HVSX3_sQ11Ll1fkQP9YCg_BuKdMewh
+
+Conexion:
+- host: aws-1-us-east-1.pooler.supabase.com
+- port: 5432
+- database: postgres
+- user: postgres.lhlpjcrndlnjtfhjdubq
+- pool_mode: session
+- pass: UzumakiNaruto2016.
+
+Exportando shapefiles
+shp2pgsql -s 4326 -g geom -D -I policia_wgs84.shp policias_wgs84 | psql -h aws-1-us-east-1.pooler.supabase.com -U postgres.lhlpjcrndlnjtfhjdubq -d postgres
+shp2pgsql -s 4326 -g geom -D -I bomberos_wgs84.shp | psql -h aws-1-us-east-1.pooler.supabase.com -U postgres.lhlpjcrndlnjtfhjdubq -d postgres
+shp2pgsql -s 4326 -g geom -D -I salud_wgs84.shp | psql -h aws-1-us-east-1.pooler.supabase.com -U postgres.lhlpjcrndlnjtfhjdubq -d postgres
+
+shp2pgsql -s 4326 -g geom -D -I barrios.shp | psql -h aws-1-us-east-1.pooler.supabase.com -U postgres.lhlpjcrndlnjtfhjdubq -d postgres
+shp2pgsql -s 4326 -g geom -D -I alcantarillado.shp | psql -h aws-1-us-east-1.pooler.supabase.com -U postgres.lhlpjcrndlnjtfhjdubq -d postgres
+shp2pgsql -s 4326 -g geom -D -I agua_potable.shp | psql -h aws-1-us-east-1.pooler.supabase.com -U postgres.lhlpjcrndlnjtfhjdubq -d postgres
+
+
+conectarse a la DB con psql
+psql -h aws-1-us-east-1.pooler.supabase.com -U postgres.lhlpjcrndlnjtfhjdubq -d postgres

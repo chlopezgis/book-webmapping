@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explorador de Tablas Supabase</title>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Tailwind v3 (este sí funciona) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+
+  <!-- HEADER -->
+  <header class="flex items-center gap-3 mb-6 border-b pb-3 border-green-500">
+    <img id="logo" src="https://dummyimage.com/48x48/10b981/ffffff&text=L" 
+      alt="Logo" class="rounded-lg shadow-md w-12 h-12"/>
+    <h1 class="text-2xl font-bold text-green-600">LuGIS</h1>
+  </header>
+
+  <!-- DESCRIPCIÓN -->
+  <section class="bg-white p-4 rounded-lg shadow-md mb-6 border-l-4 border-green-500">
+    <h2 class="text-lg font-semibold mb-2">¿Qué hace esta herramienta?</h2>
+    <p class="text-sm text-gray-600">
+      Conecta a tu proyecto Supabase y te permite leer tus tablas públicas y ver sus datos en formato tabla.
+    </p>
+  </section>
+
+  <!-- CONEXIÓN -->
+  <section class="bg-white p-5 rounded-lg shadow-md mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label class="text-sm font-medium text-gray-700">Project URL</label>
+      <input id="projectUrl" 
+        class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400 outline-none"
+        placeholder="https://xxxxx.supabase.co"/>
+      <p class="text-xs text-gray-500 mt-1">Encuentra tu URL en Settings → API</p>
+    </div>
+
+    <div>
+      <label class="text-sm font-medium text-gray-700">API Key (anon/public)</label>
+      <input id="apiKey"
+        class="border p-2 rounded w-full focus:ring-2 focus:ring-green-400 outline-none"
+        placeholder="pk_anon_xxxxxxxxx"/>
+      <p class="text-xs text-gray-500 mt-1">Usa la anon key, no la service key</p>
+    </div>
+
+    <div class="md:col-span-2">
+      <button onclick="connectDB()"
+        class="bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition">
+        Conectar
+      </button>
+    </div>
+  </section>
+
+  <!-- LISTA DE TABLAS -->
+  <section>
+    <h2 class="text-lg font-bold text-gray-800 mb-3">Tablas disponibles:</h2>
+    <div id="tableList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+  </section>
+
+  <!-- RESULTADOS -->
+  <section class="mt-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-3">Datos de la tabla:</h2>
+    <div id="output" class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+      Esperando conexión...
+    </div>
+  </section>
+
+<script>
+let dbClient;
+
+async function connectDB() {
+  const url = document.getElementById("projectUrl").value.trim();
+  const key = document.getElementById("apiKey").value.trim();
+
+  if (!url || !key) {
+    alert("Ingresa URL y API Key pública (anon)");
+    return;
+  }
+
+  dbClient = window.supabase.createClient(url, key);
+
+  document.getElementById("output").textContent = "Conectando...";
+  document.getElementById("tableList").innerHTML = "";
+
+  const { data, error } = await dbClient.rpc("list_tables");
+
+  if (error) {
+    document.getElementById("output").textContent = "Error: " + error.message;
+    return;
+  }
+
+  const listDiv = document.getElementById("tableList");
+  listDiv.innerHTML = "";
+
+  data.forEach(t => {
+    const btn = document.createElement("button");
+    btn.textContent = t.name;
+    btn.className = "bg-gray-800 text-white text-sm py-2 rounded-lg hover:bg-gray-700 transition shadow";
+    btn.onclick = () => readTable(t.name);
+    listDiv.appendChild(btn);
+  });
+
+  document.getElementById("output").textContent = "Selecciona una tabla para ver los datos.";
+}
+
+async function readTable(table) {
+  document.getElementById("output").innerHTML = `Cargando datos de "${table}"...`;
+
+  const { data, error } = await dbClient.from(table).select("*").limit(10);
+
+  if (error) {
+    document.getElementById("output").textContent = "Error: " + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    document.getElementById("output").textContent = `La tabla "${table}" no tiene datos.`;
+    return;
+  }
+
+  const columns = Object.keys(data[0]);
+  let html = `<table class="text-sm w-full border border-gray-300 rounded-lg"><thead><tr class="border-b bg-gray-50">`;
+
+  columns.forEach(col => html += `<th class="p-2 text-left font-semibold text-gray-700">${col}</th>`);
+  html += "</tr></thead><tbody>";
+
+  data.forEach(row => {
+    html += "<tr class='border-b hover:bg-gray-50'>";
+    columns.forEach(col => html += `<td class="p-2">${row[col] ?? ""}</td>`);
+    html += "</tr>";
+  });
+
+  html += "</tbody></table>";
+  document.getElementById("output").innerHTML = html;
+}
+</script>
+
+</body>
+</html>

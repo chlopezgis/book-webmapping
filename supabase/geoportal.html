@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Geoportal - Control Centralizado</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; }
+
+  #sidebar {
+    position: fixed;
+    top:0; left:0;
+    width:320px; height:100vh;
+    background: white;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    overflow-y: auto;
+    z-index: 1500;
+    transition: 0.3s ease;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+  }
+
+  #map {
+    margin-left: 320px;
+    width: calc(100% - 320px);
+    height: 100vh;
+    transition: 0.3s ease;
+  }
+
+  /* Buscador y Stats */
+  .search-box {
+    width: 100%; padding: 12px;
+    border-radius: 8px; border: 1px solid #cbd5e0;
+    margin-bottom: 5px; outline: none;
+  }
+  #autocomplete {
+    list-style: none; padding: 0; margin: 0 0 15px 0;
+    background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  #autocomplete li {
+    padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f1f1f1; font-size: 14px;
+  }
+  #autocomplete li:hover { background: #f7fafc; color: #4c51bf; }
+
+  .stats-card {
+    background: #4c51bf; color: white;
+    border-radius: 12px; padding: 15px;
+    margin-top: 15px; display: none;
+  }
+  .stats-item { display: flex; justify-content: space-between; margin: 8px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 4px; }
+
+  /* Sección de Capas */
+  .layer-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid #edf2f7;
+  }
+  .layer-item label { font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+  .switch {
+    position: relative; display: inline-block; width: 40px; height: 20px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc; transition: .4s; border-radius: 20px;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px;
+    background-color: white; transition: .4s; border-radius: 50%;
+  }
+  input:checked + .slider { background-color: #4c51bf; }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  #btnLimpiar {
+    width:100%; padding:10px; background:#e53e3e; color:white;
+    border:none; border-radius:8px; cursor:pointer; margin-top:15px; display:none;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="sidebar">
+  <h2 style="color:#2d3748; margin-top:0;"><i class="fa-solid fa-map-location-dot"></i> Geoportal</h2>
+  
+  <p style="font-weight:bold; margin-bottom:8px;">Búsqueda de Barrio</p>
+  <input id="searchBarrios" placeholder="Ej: El Sagrario..." class="search-box" autocomplete="off"/>
+  <ul id="autocomplete"></ul>
+
+  <div id="statsBox" class="stats-card">
+    <h4 id="statsTitle" style="margin:0 0 10px 0;">Estadísticas</h4>
+    <div class="stats-item"><span><i class="fa-solid fa-shield-halved"></i> Policías</span> <b id="statPoli">-</b></div>
+    <div class="stats-item"><span><i class="fa-solid fa-fire-extinguisher"></i> Bomberos</span> <b id="statBomb">-</b></div>
+	<div class="stats-item"><span><i class="fa-solid fa-kit-medical"></i> Salud</span> <b id="statSalud">-</b></div>
+    <div class="stats-item"><span><i class="fa-solid fa-water"></i> Alcantarillado</span> <b id="statAlcan">-</b></div>
+    <button id="btnLimpiar" onclick="limpiarBusqueda()">Limpiar Selección</button>
+  </div>
+
+  <hr style="border:0; border-top:1px solid #edf2f7; margin:20px 0;"/>
+  
+  <p style="font-weight:bold; margin-bottom:10px;"><i class="fa-solid fa-layers-group"></i> Capas del Mapa</p>
+  <div id="layersContainer">
+    </div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+/* CONFIGURACIÓN SUPABASE */
+const SUPABASE_URL = "https://lhlpjcrndlnjtfhjdubq.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_7HVSX3_sQ11Ll1fkQP9YCg_BuKdMewh";
+const headers = { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY };
+
+const map = L.map('map').setView([-4.0, -79.2], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+/* DEFINICIÓN DE CAPAS */
+const capasDef = [
+  { tabla: "barrios", nombre: "Barrios", icon: "fa-draw-polygon", color: "#4a5568" },
+  { tabla: "agua_potable", nombre: "Agua Potable", icon: "fa-droplet", color: "#3182ce" },
+  { tabla: "alcantarillado", nombre: "Alcantarillado", icon: "fa-faucet-drip", color: "#805ad5" },
+  { tabla: "bomberos_wgs84", nombre: "Bomberos", icon: "fa-fire", color: "#e53e3e" },
+  { tabla: "policias_wgs84", nombre: "Policía", icon: "fa-shield", color: "#2b6cb0" },
+  { tabla: "salud_wgs84", nombre: "Salud", icon: "fa-hospital", color: "#38a169" }
+];
+
+let barriosCache = [];
+let capaHighlight = null;
+const capasActivas = {}; // Para guardar las instancias de las capas de Leaflet
+
+/* 1. CARGA INICIAL Y GENERACIÓN DEL PANEL DE CAPAS */
+async function inicializarGeoportal() {
+  const container = document.getElementById("layersContainer");
+
+  for (const c of capasDef) {
+    // Crear el elemento en el panel
+    const div = document.createElement("div");
+    div.className = "layer-item";
+    div.innerHTML = `
+      <label><i class="fa-solid ${c.icon}" style="color:${c.color}"></i> ${c.nombre}</label>
+      <label class="switch">
+        <input type="checkbox" id="chk-${c.tabla}" onchange="toggleCapa('${c.tabla}')">
+        <span class="slider"></span>
+      </label>
+    `;
+    container.appendChild(div);
+
+    // Cargar datos de la capa
+    try {
+      const res = await fetch(`${SUPABASE_URL}${c.tabla}?select=geom,*`, { headers });
+      const data = await res.json();
+      
+      const geojson = L.geoJSON(data.map(d => ({
+        type: "Feature",
+        geometry: typeof d.geom === 'string' ? JSON.parse(d.geom) : d.geom,
+        properties: d
+      })), {
+        style: { color: c.color, weight: 2 },
+        pointToLayer: (feature, latlng) => L.circleMarker(latlng, { radius: 6, fillColor: c.color, color: "#fff", weight: 1, fillOpacity: 0.8 }),
+        onEachFeature: (f, l) => {
+          let pop = "<strong>Info:</strong><br><hr>";
+          for (let key in f.properties) if (key !== 'geom') pop += `<b>${key}:</b> ${f.properties[key]}<br>`;
+          l.bindPopup(pop);
+        }
+      });
+
+      capasActivas[c.tabla] = geojson;
+
+      // Por defecto, prender Barrios
+      if (c.tabla === "barrios") {
+        barriosCache = data;
+        document.getElementById(`chk-${c.tabla}`).checked = true;
+        geojson.addTo(map);
+      }
+    } catch (e) { console.error("Error capa " + c.tabla, e); }
+  }
+}
+
+/* 2. FUNCIÓN PARA PRENDER/APAGAR */
+function toggleCapa(tabla) {
+  const isChecked = document.getElementById(`chk-${tabla}`).checked;
+  if (isChecked) {
+    capasActivas[tabla].addTo(map);
+  } else {
+    map.removeLayer(capasActivas[tabla]);
+  }
+}
+
+/* 3. BÚSQUEDA Y ESTADÍSTICAS */
+const input = document.getElementById("searchBarrios");
+const list = document.getElementById("autocomplete");
+
+input.addEventListener("input", () => {
+  const term = input.value.toLowerCase();
+  list.innerHTML = "";
+  if (!term) return;
+  const filtered = barriosCache.filter(b => b.barrio.toLowerCase().includes(term)).slice(0, 5);
+  filtered.forEach(b => {
+    const li = document.createElement("li");
+    li.textContent = b.barrio;
+    li.onclick = () => seleccionarBarrio(b);
+    list.appendChild(li);
+  });
+});
+
+async function seleccionarBarrio(barrioObj) {
+  input.value = barrioObj.barrio;
+  list.innerHTML = "";
+  if (capaHighlight) map.removeLayer(capaHighlight);
+  const geom = typeof barrioObj.geom === 'string' ? JSON.parse(barrioObj.geom) : barrioObj.geom;
+  capaHighlight = L.geoJSON(geom, { style: { color: '#ffd700', weight: 5, fillOpacity: 0.3 } }).addTo(map);
+  map.fitBounds(capaHighlight.getBounds());
+
+  document.getElementById("statsBox").style.display = "block";
+  document.getElementById("btnLimpiar").style.display = "block";
+  document.getElementById("statsTitle").textContent = barrioObj.barrio;
+  setUI("...", "...", "...");
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}rpc/obtener_estadisticas_barrio`, {
+      method: 'POST',
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre_barrio_buscado: barrioObj.barrio })
+    });
+    const data = await res.json();
+    const s = data[0];
+    setUI(s.conteo_policias, s.conteo_bomberos, s.conteo_salud, (s.longitud_alcantarillado / 1000).toFixed(2) + " km");
+  } catch (e) { setUI("0", "0", "0"); }
+}
+
+function setUI(p, b, s, a) {
+  document.getElementById("statPoli").textContent = p;
+  document.getElementById("statBomb").textContent = b;
+  document.getElementById("statSalud").textContent = s;
+  document.getElementById("statAlcan").textContent = a;
+}
+
+function limpiarBusqueda() {
+  input.value = "";
+  if (capaHighlight) map.removeLayer(capaHighlight);
+  document.getElementById("statsBox").style.display = "none";
+  map.setView([-4.0, -79.2], 13);
+}
+
+inicializarGeoportal();
+</script>
+
+</body>
+</html>
