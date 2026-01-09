@@ -1,0 +1,81 @@
+:root {
+  --verde-lugis: #1a7a6b;
+  --dorado-lugis: #d4af37;
+  --oscuro-modal: #111827;
+  --oscuro-input: #1f2937;
+}
+
+* { box-sizing: border-box; }
+body { margin:0; font-family: 'Segoe UI', sans-serif; background: #f4f7f6; overflow: hidden; }
+
+/* Sidebar */
+#sidebar {
+  position: fixed; top:0; left:0; width:320px; height:100vh;
+  background: white; border-right: 1px solid #ddd; padding: 20px;
+  overflow-y: auto; z-index: 1500; box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+}
+
+.logo-container { text-align: center; margin-bottom: 20px; }
+.logo-text { color: var(--verde-lugis); border-bottom: 2px solid var(--dorado-lugis); display: inline-block; }
+
+/* Mapa */
+#map { margin-left: 320px; width: calc(100% - 320px); height: 100vh; background: #eee; }
+
+/* Buscador */
+.search-container { position: relative; margin-bottom: 20px; }
+#searchBarrios { width:100%; padding:12px; border-radius:8px; border:1px solid #ddd; }
+#autocomplete {
+  position: absolute; top: 100%; left: 0; right: 0;
+  list-style: none; padding: 0; margin: 0;
+  background: white; border: 1px solid #ddd; z-index: 3000;
+  max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 0 0 8px 8px;
+}
+#autocomplete li { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px; }
+#autocomplete li:hover { background: #f8f9fa; color: var(--verde-lugis); font-weight: bold; }
+
+/* Estadísticas */
+.section-header {
+  display: flex; align-items: center; gap: 8px; padding: 12px 0;
+  font-weight: bold; color: #2d3748; border-bottom: 2px solid var(--verde-lugis); margin-bottom: 10px;
+}
+.stats-card { background: var(--verde-lugis); color: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+.stats-item { display: flex; justify-content: space-between; margin: 8px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; }
+.stats-item.highlight { color: var(--dorado-lugis); font-weight: bold; }
+.btn-clear { width:100%; padding:8px; background:var(--oscuro-modal); color:white; border:none; border-radius:8px; margin-top:10px; cursor:pointer; }
+
+/* Capas */
+.layer-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.switch { position: relative; width: 34px; height: 18px; display: inline-block; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 20px; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s; }
+input:checked + .slider { background-color: var(--dorado-lugis); }
+input:checked + .slider:before { transform: translateX(16px); }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); z-index: 4000; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: var(--oscuro-modal); width: 450px; padding: 25px; border-radius: 15px; 
+  color: white; border: 2px solid var(--verde-lugis);
+}
+.form-label { font-size:12px; color:var(--dorado-lugis); display: block; margin-bottom: 5px; }
+.input-form { width: 100%; background: var(--oscuro-input); border: 1px solid #4b5563; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; outline: none; }
+.desc-area { height:70px; resize:none; }
+
+.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+.btn-form { padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-gps { background: #2d3748; color: var(--dorado-lugis); border: 1px solid var(--dorado-lugis); }
+.btn-map { background: var(--verde-lugis); color: white; }
+.btn-cancel { background: #4b5563; color: white; width: 100%; }
+
+#btnNuevaIncidencia {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--verde-lugis); color: white; border: none; padding: 14px 28px;
+  border-radius: 8px; font-weight: bold; cursor: pointer; z-index: 2000; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.modo-reporte-activo .leaflet-interactive[fill*="#1a7a6b"] { pointer-events: none !important; }
