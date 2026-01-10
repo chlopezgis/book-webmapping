@@ -3,53 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Churn AI - Dashboard Táctico</title>
-    
+    <title>Churn CRM | Intelligence Console Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="logo">CHURN<span class="cyan">CRM</span></div>
+            <div class="search-wrapper">
+                <input type="text" id="clientId" placeholder="ID Cliente (Ej: 9497-QCMMS)">
+                <button id="btnSearch">Consultar Cliente</button>
+            </div>
+            <div class="system-status">SISTEMA ACTIVO</div>
+        </header>
 
-<div class="dashboard-container">
-    <header>
-        <h1>Churn Detector <span class="accent-text">AI</span></h1>
-        <p class="subtitle">Análisis predictivo en esquema <b>churn</b></p>
-    </header>
+        <div id="risk-banner" class="alert-banner" style="display:none"></div>
 
-    <div class="search-group">
-        <input type="text" id="clientId" placeholder="ID Cliente (Ej: 9497-QCMMS)">
-        <button id="btnAnalizar">Analizar</button>
+        <main id="dashboard" class="main-layout" style="display:none">
+            
+            <section class="col">
+                <div class="card prob-card">
+                    <label class="card-label">PROBABILIDAD DE ABANDONO</label>
+                    <div id="res-prob" class="risk-value">0%</div>
+                </div>
+
+                <div class="card profile-card">
+                    <div class="user-header">
+                        <div class="avatar-icon">👤</div>
+                        <h2 id="res-id-display">ID: ---</h2>
+                    </div>
+                    <div class="data-group">
+                        <div class="data-row"><span>CLV:</span> <strong id="res-clv" class="cyan">---</strong></div>
+                        <div class="data-row"><span>Estatus:</span> <strong id="res-status">---</strong></div>
+                        <div class="data-row"><span>Sentimiento:</span> <strong id="res-sent">---</strong></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="col">
+                <div class="card diag-card">
+                    <label class="card-label">DIAGNÓSTICO IA (SHAP)</label>
+                    <div class="factor-info">
+                        <span>Factor Crítico:</span>
+                        <strong id="res-factor" class="cyan">---</strong>
+                    </div>
+                    <div class="bar-bg">
+                        <div id="res-bar-fill" class="bar-fill"></div>
+                    </div>
+                </div>
+
+                <div class="card strategy-card">
+                    <label class="card-label">ESTRATEGIA RECOMENDADA</label>
+                    <div class="action-box">
+                        <span class="icon">⚡</span>
+                        <div class="action-text">
+                            <strong>ACCIÓN:</strong>
+                            <p id="res-accion">Analizando situación...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="col">
+                <div class="card interactions-card">
+                    <label class="card-label">INTERACCIONES</label>
+                    <div class="calls-display">
+                        <span id="res-calls" class="calls-count">0</span>
+                        <span class="calls-label">Llamadas al Soporte</span>
+                    </div>
+                </div>
+
+                <div class="card checklist-card">
+                    <label class="card-label">OFERTAS DINÁMICAS (SEGÚN FACTOR)</label>
+                    <div id="checklist-content" class="check-list">
+                        </div>
+                </div>
+            </aside>
+        </main>
     </div>
-
-    <div id="resultado" class="result-panel">
-        <div class="risk-card">
-            <span class="label">PROBABILIDAD DE ABANDONO</span>
-            <div class="risk-value" id="res-prob">0%</div>
-            <div class="progress-bg">
-                <div class="progress-bar" id="res-bar"></div>
-            </div>
-        </div>
-
-        <div class="info-details">
-            <div class="info-row">
-                <span class="label">ID Cliente:</span>
-                <span id="res-id" class="data-val">---</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Causa Crítica:</span>
-                <span id="res-factor" class="data-val accent-text">---</span>
-            </div>
-        </div>
-
-        <div class="action-box">
-            <span class="action-label">Estrategia de Retención</span>
-            <p id="res-accion" class="action-text"></p>
-        </div>
-    </div>
-</div>
-
-<script src="js/script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
