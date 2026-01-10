@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Churn AI - Dashboard Táctico</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+    <header>
+        <h1>Churn Detector <span class="accent-text">AI</span></h1>
+        <p class="subtitle">Análisis predictivo en esquema <b>churn</b></p>
+    </header>
+
+    <div class="search-group">
+        <input type="text" id="clientId" placeholder="ID Cliente (Ej: 9497-QCMMS)">
+        <button id="btnAnalizar">Analizar</button>
+    </div>
+
+    <div id="resultado" class="result-panel">
+        <div class="risk-card">
+            <span class="label">PROBABILIDAD DE ABANDONO</span>
+            <div class="risk-value" id="res-prob">0%</div>
+            <div class="progress-bg">
+                <div class="progress-bar" id="res-bar"></div>
+            </div>
+        </div>
+
+        <div class="info-details">
+            <div class="info-row">
+                <span class="label">ID Cliente:</span>
+                <span id="res-id" class="data-val">---</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Causa Crítica:</span>
+                <span id="res-factor" class="data-val accent-text">---</span>
+            </div>
+        </div>
+
+        <div class="action-box">
+            <span class="action-label">Estrategia de Retención</span>
+            <p id="res-accion" class="action-text"></p>
+        </div>
+    </div>
+</div>
+
+<script src="../js/script.js"></script>
+</body>
+</html>
